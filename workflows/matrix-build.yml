@@ -1,0 +1,50 @@
+# This workflow demonstrates a matrix build strategy with artifact management.
+# It will run three parallel jobs, one for each OS in the matrix.
+
+name: Matrix Build with Artifacts
+
+on:
+  # Run on pushes to the main branch
+  push:
+    branches:
+      - main
+  # Allow manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    # Use the 'matrix.os' variable to define the runner for each job
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      # Ensures all matrix jobs complete, even if one fails
+      fail-fast: false 
+      
+      # Define the build matrix
+      matrix:
+        # We will use 3 different OS versions as our variants
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      # This step includes the required identifier 'matrix-040654e'
+      - name: Show Build Variant
+        id: matrix-040654e
+        run: echo "Starting build for OS: ${{ matrix.os }}"
+
+      # Generate a dummy artifact file. 
+      # 'shell: bash' is used for cross-platform 'echo' compatibility.
+      - name: Generate build artifact
+        run: echo "This is the build output for ${{ matrix.os }}." > build-output.txt
+        shell: bash 
+
+      # Upload the generated file as an artifact using the required prefix
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # Artifact name must match the pattern: build-040654e-<variant>
+          name: build-040654e-${{ matrix.os }}
+          # Path to the file(s) to upload
+          path: build-output.txt
