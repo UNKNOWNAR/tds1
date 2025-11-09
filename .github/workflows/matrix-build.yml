@@ -1,0 +1,44 @@
+name: Matrix Build with Artifacts
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Required identifier step
+      - name: matrix-040654e
+        id: matrix-040654e
+        run: echo "Starting build for OS: ${{ matrix.os }}"
+
+      # Cross-platform: use Python (available on GitHub runners) to write a file
+      - name: Generate build artifact
+        run: |
+          python - <<'PY'
+          import os, sys
+          variant = os.getenv('RUNNER_OS') or '${{ matrix.os }}'
+          content = f'Build output for variant: {variant}\nRunner: {os.getenv("RUNNER_OS")}\nMatrix value: ${{ matrix.os }}\n'
+          with open('build-output.txt','w', encoding='utf-8') as f:
+              f.write(content)
+          print('Wrote build-output.txt ({} bytes)'.format(len(content)))
+          PY
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-040654e-${{ matrix.os }}
+          path: build-output.txt
