@@ -1,13 +1,10 @@
-# This workflow demonstrates a matrix build strategy with artifact management.
-# It will run three parallel jobs, one for each OS in the matrix.
-
 name: Matrix Build with Artifacts
 
 on:
-  # Run on pushes to the main branch
+  # Run on pushes to the master branch
   push:
     branches:
-      - main
+      - master
   # Allow manual triggering from the GitHub Actions tab
   workflow_dispatch:
 
