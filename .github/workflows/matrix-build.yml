@@ -13,28 +13,25 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Check out repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # Required identifier step
       - name: matrix-040654e
         id: matrix-040654e
         run: echo "Starting build for OS: ${{ matrix.os }}"
 
-      # Cross-platform: use Python (available on GitHub runners) to write a file
-      - name: Generate build artifact
+      - name: Generate build artifact (cross-platform)
         run: |
           python - <<'PY'
-          import os, sys
+          import os
           variant = os.getenv('RUNNER_OS') or '${{ matrix.os }}'
-          content = f'Build output for variant: {variant}\nRunner: {os.getenv("RUNNER_OS")}\nMatrix value: ${{ matrix.os }}\n'
+          content = f'Build output for variant: {variant}\nMatrix: ${{ matrix.os }}\n'
           with open('build-output.txt','w', encoding='utf-8') as f:
               f.write(content)
-          print('Wrote build-output.txt ({} bytes)'.format(len(content)))
+          print('WROTE', len(content), 'bytes')
           PY
 
       - name: Upload artifact
